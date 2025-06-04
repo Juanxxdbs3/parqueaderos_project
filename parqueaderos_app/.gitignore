@@ -1,0 +1,36 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+.idea/
+android/local.properties
+*.iml
+*.class
+*.log
+*.pyc
+*.swp
+*.env
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# macOS / Linux / Windows
+.DS_Store
+*.suo
+*.ntvs_analysis.dat
+*.njsproj
+*.sln
+*.user
+*.db
+
+# Firebase / Env
+.env
+
+# iOS/macOS (por si compilas para iOS desde otro equipo)
+ios/Flutter/.last_build_id
+ios/Pods/
+macos/Pods/
+macos/Flutter/ephemeral/

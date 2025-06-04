@@ -1,0 +1,63 @@
+name: parqueaderos_app
+description: "Aplicación Flutter para localizar parqueaderos en Cartagena."
+publish_to: 'none' # No publicar en pub.dev
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0' # Actualiza según tu versión de Flutter/Dart
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI
+  cupertino_icons: ^1.0.8 # Para iconos estilo iOS si los necesitas
+
+  # Estado y Arquitectura
+  provider: ^6.1.2 # Para gestión de estado simple
+  get_it: ^8.0.3 # Service locator para inyección de dependencias
+  injectable: ^2.5.0 # Generador de código para get_it
+  equatable: ^2.0.5 # Para simplificar comparaciones de objetos y hashCode
+  logging: ^1.3.0
+  
+  dartz: ^0.10.1
+
+  # Mapas y Geolocalización
+  flutter_map: ^6.1.0 # Para OpenStreetMap
+  latlong2: ^0.9.1 # Para manejo de Latitud/Longitud con flutter_map
+  geolocator: ^12.0.0 # Para obtener la ubicación del dispositivo
+  geocoding: ^3.0.0 # Si necesitas convertir coordenadas a direcciones y viceversa (Nominatim también lo hace)
+
+  # Red
+  http: ^1.2.1 # Para realizar peticiones HTTP a tu API
+  flutter_dotenv: ^5.1.0 # Para manejar variables de entorno (API keys, URLs)
+  connectivity_plus: ^6.1.4 #Para verificar la conectividad a internet
+
+  # Permisos
+  permission_handler: ^11.3.1 # Para manejar permisos de la app (ubicación, etc.)
+
+  # Otros útiles
+  flutter_rating_bar: ^4.0.1 # Si vas a implementar calificaciones
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  
+  flutter_lints: ^3.0.0 # Lints para mejorar la calidad del código
+  build_runner: ^2.4.9 # Necesario para generadores de código como injectable
+  injectable_generator: ^2.6.1 # Generador para injectable
+
+flutter:
+  uses-material-design: true
+
+  # Para activar el uso de assets (imágenes, fuentes, .env)
+  assets:
+    - assets/images/ # Descomenta y crea esta carpeta si tienes imágenes locales
+    - .env # Archivo para variables de entorno (asegúrate que exista en la raíz)
+
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic

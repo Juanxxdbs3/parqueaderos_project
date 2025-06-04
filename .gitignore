@@ -1,0 +1,21 @@
+# === BACKEND (Node.js) ===
+backend/parqueaderos_api_backend/node_modules/
+backend/parqueaderos_api_backend/.env
+backend/parqueaderos_api_backend/.DS_Store
+
+# === FRONTEND (Flutter) ===
+frontend/parqueaderos_app/.dart_tool/
+frontend/parqueaderos_app/.packages
+frontend/parqueaderos_app/build/
+frontend/parqueaderos_app/.idea/
+frontend/parqueaderos_app/.vscode/
+frontend/parqueaderos_app/.env
+
+# === General ===
+.DS_Store
+*.log
+*.lock
+# Ignore all test output
+*.test.js
+# Ignore temporary files
+*.tmp
