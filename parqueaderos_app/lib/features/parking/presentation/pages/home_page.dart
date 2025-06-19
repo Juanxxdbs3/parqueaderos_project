@@ -9,6 +9,7 @@ import 'package:parqueaderos_app/features/parking/domain/entities/parqueadero_en
 import 'package:parqueaderos_app/features/parking/domain/usecases/get_parqueaderos_cercanos_usecase.dart';
 import 'package:provider/provider.dart';
 import 'package:logging/logging.dart';
+import 'package:parqueaderos_app/features/parking/presentation/pages/search_parkinglot.dart';
 
 final Logger _logger = Logger('HomePage');
 
@@ -113,11 +114,6 @@ class _HomePageState extends State<HomePage> {
               child: Text('Opciones', style: TextStyle(color: Colors.white)),
             ),
             ListTile(
-              leading: const Icon(Icons.search),
-              title: const Text('Buscar Parqueadero'),
-              onTap: () => Navigator.pop(context),
-            ),
-            ListTile(
               leading: const Icon(Icons.history),
               title: const Text('Historial de Pagos'),
               onTap: () => Navigator.pop(context),
@@ -144,8 +140,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('ParkItNow'),
         leading: Builder(
-          builder: (context) => // Asegura que el Drawer se abra correctamente
-              IconButton(
+          builder: (context) => IconButton(
             icon: const Icon(Icons.menu),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
@@ -159,7 +154,43 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: _buildBody(locationResult),
+      body: Column(
+        children: [
+          // Caja de búsqueda
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SearchParkingLotPage(),
+                  ),
+                );
+              },
+              child: AbsorbPointer(
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: "Buscar parqueadero...",
+                    prefixIcon: const Icon(Icons.search),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding:
+                        const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  enabled: false, // Para que solo funcione el onTap
+                ),
+              ),
+            ),
+          ),
+          // El resto del body original
+          Expanded(child: _buildBody(locationResult)),
+        ],
+      ),
       floatingActionButton:
           (locationResult is LocationSuccess && _currentMapCenter != null)
               ? FloatingActionButton(
@@ -224,6 +255,10 @@ class _HomePageState extends State<HomePage> {
               options: MapOptions(
                 initialCenter: _currentMapCenter ?? newCenterForMap,
                 initialZoom: 15.0,
+                // Habilita gestos de usuario
+                interactionOptions: const InteractionOptions(
+                  flags: InteractiveFlag.all,
+                ),
                 onTap: (tapPosition, point) {
                   setState(() {
                     _selectedParking = null;
@@ -242,141 +277,155 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           // Panel deslizable de detalles (ANCLADO ABAJO)
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: ValueListenableBuilder<double>(
-              valueListenable: _panelExtent,
-              builder: (context, extent, _) {
-                return DraggableScrollableSheet(
-                  initialChildSize: 0.08,
-                  minChildSize: 0.08,
-                  maxChildSize: 0.66,
-                  expand: false,
-                  builder: (context, scrollController) {
-                    return AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(18)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha((0.08 * 255).toInt()),
-                            blurRadius: 8,
-                            offset: const Offset(0, -2),
-                          ),
-                        ],
+          DraggableScrollableSheet(
+            initialChildSize: 0.12, // Más visible
+            minChildSize: 0.12,
+            maxChildSize: 0.66,
+            expand: false,
+            builder: (context, scrollController) {
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(18)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha((0.08 * 255).toInt()),
+                      blurRadius: 8,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    // Cortina visible
+                    GestureDetector(
+                      onTap: () {
+                        // Opcional: puedes expandir/retraer el panel aquí si quieres
+                      },
+                      child: Container(
+                        width: 40,
+                        height: 6,
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(3),
+                        ),
                       ),
-                      child: Column(
-                        children: [
-                          // "Cortina" para arrastrar
-                          GestureDetector(
-                            onTap: () {
-                              if (extent < 0.2) {
-                                _panelExtent.value = 0.5;
-                              } else {
-                                _panelExtent.value = 0.08;
-                              }
-                            },
-                            child: Container(
-                              width: 40,
-                              height: 6,
-                              margin: const EdgeInsets.symmetric(vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(3),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: SingleChildScrollView(
-                              controller: scrollController,
-                              child: _selectedParking != null
-                                  ? Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                    ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        controller: scrollController,
+                        child: _selectedParking != null
+                            ? Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(_selectedParking!.nombre,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18)),
+                                    const SizedBox(height: 8),
+                                    Text(_selectedParking!.direccion),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.event_available,
+                                            size: 18),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                            'Disponibles: ${_selectedParking!.disponibles} / ${_selectedParking!.capacidadTotal}'),
+                                      ],
+                                    ),
+                                    if (_selectedParking!.tarifaPorHora !=
+                                        null) ...[
+                                      const SizedBox(height: 8),
+                                      Row(
                                         children: [
-                                          Text(_selectedParking!.nombre,
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 18)),
-                                          const SizedBox(height: 8),
-                                          Text(_selectedParking!.direccion),
-                                          const SizedBox(height: 8),
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.event_available,
-                                                  size: 18),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                  'Disponibles: ${_selectedParking!.disponibles} / ${_selectedParking!.capacidadTotal}'),
-                                            ],
-                                          ),
-                                          if (_selectedParking!.tarifaPorHora !=
-                                              null) ...[
-                                            const SizedBox(height: 8),
-                                            Row(
-                                              children: [
-                                                const Icon(
-                                                    Icons.payments_outlined,
-                                                    size: 18),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                    'Tarifa por Hora: \$${_selectedParking!.tarifaPorHora?.toStringAsFixed(0) ?? 'N/A'}'),
-                                              ],
-                                            ),
-                                          ],
-                                          if (_selectedParking!.horario !=
-                                                  null &&
-                                              _selectedParking!
-                                                  .horario!.isNotEmpty) ...[
-                                            const SizedBox(height: 8),
-                                            Row(
-                                              children: [
-                                                const Icon(Icons.access_time,
-                                                    size: 18),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                    'Horario: ${_selectedParking!.horario!}'),
-                                              ],
-                                            ),
-                                          ],
-                                          const SizedBox(height: 24),
-                                          Center(
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                // lógica futura de reserva
-                                              },
-                                              child: const Text(
-                                                  "Reservar parqueadero"),
-                                            ),
-                                          ),
+                                          const Icon(Icons.payments_outlined,
+                                              size: 18),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                              'Tarifa por Hora: \$${_selectedParking!.tarifaPorHora?.toStringAsFixed(0) ?? 'N/A'}'),
                                         ],
                                       ),
-                                    )
-                                  : Center(
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: Text(
-                                          "Selecciona un parqueadero en el mapa para ver detalles.",
-                                          style: TextStyle(
-                                              color: Colors.grey[600]),
-                                        ),
+                                    ],
+                                    if (_selectedParking!.horario != null &&
+                                        _selectedParking!
+                                            .horario!.isNotEmpty) ...[
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          const Icon(Icons.access_time,
+                                              size: 18),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                              'Horario: ${_selectedParking!.horario!}'),
+                                        ],
+                                      ),
+                                    ],
+                                    const SizedBox(height: 24),
+                                    Center(
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          // lógica futura de reserva
+                                        },
+                                        child:
+                                            const Text("Reservar parqueadero"),
                                       ),
                                     ),
-                            ),
-                          ),
-                        ],
+                                  ],
+                                ),
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  children: [
+                                    const Text(
+                                      "Desliza hacia arriba para ver los parqueaderos cercanos o selecciona uno en el mapa.",
+                                      style: TextStyle(
+                                          color: Colors.black54, fontSize: 14),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    // Lista de parqueaderos cercanos (opcional)
+                                    if (_parqueaderosCercanos.isNotEmpty)
+                                      ListView.builder(
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        itemCount: _parqueaderosCercanos.length,
+                                        itemBuilder: (context, index) {
+                                          final parqueadero =
+                                              _parqueaderosCercanos[index];
+                                          return ListTile(
+                                            leading: const Icon(
+                                                Icons.local_parking_outlined),
+                                            title: Text(parqueadero.nombre),
+                                            subtitle:
+                                                Text(parqueadero.direccion),
+                                            trailing: Text(
+                                                '${parqueadero.disponibles}/${parqueadero.capacidadTotal}'),
+                                            onTap: () {
+                                              setState(() {
+                                                _selectedParking = parqueadero;
+                                                // Opcional: puedes expandir el panel aquí
+                                              });
+                                            },
+                                          );
+                                        },
+                                      ),
+                                  ],
+                                ),
+                              ),
                       ),
-                    );
-                  },
-                );
-              },
-            ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
           // Error de API (overlay arriba del mapa)
           if (_apiErrorMessage != null)

@@ -1,11 +1,12 @@
 {
-    "name": "parkitnow-backend",
+    "name": "parqueaderos_api_backend",
+    "type": "module",
     "version": "1.0.0",
     "description": "Backend para la app ParkitNow que permite encontrar parqueaderos cercanos.",
-    "main": "src/index.js",
+    "main": "index.js",
     "scripts": {
-        "start": "node src/index.js",
-        "dev": "nodemon src/index.js",
+        "start": "node index.js",
+        "dev": "nodemon index.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "Equipo ParkItNow (Edwin y Juan)",

@@ -1,42 +1,29 @@
-// Importación de dependencias
-import express, { json } from 'express';
-import { connect } from 'mongoose';
-import { config } from 'dotenv';
-import cors from 'cors';
+import express from 'express';
+import cors from './src/config/cors.js';
+import dotenv from './src/config/dotenv.js';
+import { connectDB } from './src/config/db.js';
+import authRoutes from './src/routes/auth_routes.js';
+import userRoutes from './src/routes/user_routes.js';
+import parkingRoutes from './src/routes/parking_routes.js';
+import errorMiddleware from './src/middleware/error.js';
 
-// Cargar variables de entorno desde el archivo .env
-config();
+// Carga variables de entorno
+dotenv.config();
 
-// Inicializar la aplicación Express
 const app = express();
+app.use(express.json());
+app.use(cors);
 
-// Middleware para analizar las solicitudes con formato JSON
-app.use(json());
+// Conexión a MongoDB
+await connectDB();
 
-// Habilitar CORS (si es necesario para peticiones desde el frontend)
-app.use(cors());
-
-// Conexión a MongoDB (usando la URI desde .env)
-connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-    .then(() => {
-        console.log('🟢 MongoDB conectado correctamente');
-    })
-    .catch((error) => {
-        console.error('🔴 Error al conectar a MongoDB:', error);
-    });
-
-// Rutas
-import authRoutes from './routes/auth_routes';
-app.use('/api/auth', authRoutes);  // Ruta de autenticación
-import parkingRoutes from './routes/parking_routes';
+// Definición de rutas
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/parking', parkingRoutes);
-// Puerto en el que se ejecuta el servidor
-const PORT = process.env.PORT || 5003; // Usar puerto del entorno si está disponible, o 5003 por defecto
 
-// Iniciar el servidor
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor ejecutándose en el puerto ${PORT}`);
-});
+// Middleware global de errores
+app.use(errorMiddleware);
+
+const PORT = process.env.PORT || 5003;
+app.listen(PORT, () => console.log(`🚀 Servidor ejecutándose en puerto ${PORT}`));
